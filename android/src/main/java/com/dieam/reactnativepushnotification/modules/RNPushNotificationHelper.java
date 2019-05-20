@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReadableMap;
 
 import org.json.JSONArray;
@@ -76,26 +77,34 @@ public class RNPushNotificationHelper {
         return PendingIntent.getBroadcast(context, notificationID, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    public void sendNotificationScheduled(Bundle bundle) {
+    public void sendNotificationScheduled(Bundle bundle, Callback callback) {
         Class intentClass = getMainActivityClass();
         if (intentClass == null) {
-            Log.e(LOG_TAG, "No activity class found for the scheduled notification");
+            String errorMsg = "No activity class found for the scheduled notification";
+            callback.invoke(errorMsg);
+            Log.e(LOG_TAG, errorMsg);
             return;
         }
 
         if (bundle.getString("message") == null) {
-            Log.e(LOG_TAG, "No message specified for the scheduled notification");
+            String errorMsg = "No message specified for the scheduled notification";
+            callback.invoke(errorMsg);
+            Log.e(LOG_TAG, errorMsg);
             return;
         }
 
         if (bundle.getString("id") == null) {
-            Log.e(LOG_TAG, "No notification ID specified for the scheduled notification");
+            String errorMsg = "No notification ID specified for the scheduled notification";
+            callback.invoke(errorMsg);
+            Log.e(LOG_TAG, errorMsg);
             return;
         }
 
         double fireDate = bundle.getDouble("fireDate");
         if (fireDate == 0) {
-            Log.e(LOG_TAG, "No date specified for the scheduled notification");
+            String errorMsg = "No date specified for the scheduled notification";
+            callback.invoke(errorMsg);
+            Log.e(LOG_TAG, errorMsg);
             return;
         }
 
@@ -110,7 +119,11 @@ public class RNPushNotificationHelper {
 
         boolean isSaved = scheduledNotificationsPersistence.contains(id);
         if (!isSaved) {
-            Log.e(LOG_TAG, "Failed to save " + id);
+            String errorMsg = "Failed to save " + id;
+            callback.invoke(errorMsg);
+            Log.e(LOG_TAG, errorMsg);
+        } else {
+            callback.invoke();
         }
 
         sendNotificationScheduledCore(bundle);
@@ -449,7 +462,11 @@ public class RNPushNotificationHelper {
                 Log.d(LOG_TAG, String.format("Repeating notification with id %s at time %s",
                         bundle.getString("id"), Long.toString(newFireDate)));
                 bundle.putDouble("fireDate", newFireDate);
-                this.sendNotificationScheduled(bundle);
+                this.sendNotificationScheduled(bundle, new Callback() {
+                    @Override
+                    public void invoke(Object... args) {
+                    }
+                });
             }
         }
     }
@@ -468,15 +485,17 @@ public class RNPushNotificationHelper {
         notificationManager.cancel(notificationID);
     }
 
-    public void cancelAllScheduledNotifications() {
+    public void cancelAllScheduledNotifications(Callback callback) {
         Log.i(LOG_TAG, "Cancelling all notifications");
+        Log.i(LOG_TAG, "Callback: "+callback.toString());
 
         for (String id : scheduledNotificationsPersistence.getAll().keySet()) {
             cancelScheduledNotification(id);
         }
+        callback.invoke();
     }
 
-    public void cancelScheduledNotification(ReadableMap userInfo) {
+    private String cancelScheduledNotificationPrivate(ReadableMap userInfo) {
         for (String id : scheduledNotificationsPersistence.getAll().keySet()) {
             try {
                 String notificationAttributesJson = scheduledNotificationsPersistence.getString(id, null);
@@ -487,9 +506,17 @@ public class RNPushNotificationHelper {
                     }
                 }
             } catch (JSONException e) {
-                Log.w(LOG_TAG, "Problem dealing with scheduled notification " + id, e);
+                String errorMsg ="Problem dealing with scheduled notification " + id;
+                Log.w(LOG_TAG, errorMsg, e);
+                return errorMsg+": "+e.getMessage();
             }
         }
+        return null;
+    }
+
+    public void cancelScheduledNotification(ReadableMap userInfo, Callback callback) {
+        String error = cancelScheduledNotificationPrivate(userInfo);
+        callback.invoke(error);
     }
 
     private void cancelScheduledNotification(String notificationIDString) {

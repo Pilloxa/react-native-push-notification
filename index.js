@@ -175,7 +175,11 @@ Notifications.localNotification = function(details: Object) {
  * @param {Object}		details (same as localNotification)
  * @param {Date}		details.date - The date and time when the system should deliver the notification
  */
+<<<<<<< Updated upstream
 Notifications.localNotificationSchedule = function(details: Object) {
+=======
+Notifications.localNotificationSchedule = function(details: Object, callback) {
+>>>>>>> Stashed changes
   if (Platform.OS === "ios") {
     let soundName = details.soundName ? details.soundName : "default"; // play sound (and vibrate) as default behaviour
 
@@ -209,7 +213,11 @@ Notifications.localNotificationSchedule = function(details: Object) {
     if (["year", "month"].includes(details.repeatType)) {
       delete details.repeatType;
     }
+<<<<<<< Updated upstream
     this.handler.scheduleLocalNotification(details);
+=======
+    this.handler.scheduleLocalNotification(details, callback);
+>>>>>>> Stashed changes
   }
 };
 

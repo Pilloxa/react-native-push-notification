@@ -11,16 +11,7 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationManagerCompat;
 
 import com.dieam.reactnativepushnotification.helpers.ApplicationBadgeHelper;
-import com.facebook.react.bridge.ActivityEventListener;
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.Promise;
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.ReadableArray;
-import com.facebook.react.bridge.ReadableMap;
-import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -157,13 +148,13 @@ public class RNPushNotification extends ReactContextBaseJavaModule implements Ac
     }
 
     @ReactMethod
-    public void scheduleLocalNotification(ReadableMap details) {
+    public void scheduleLocalNotification(ReadableMap details, Callback callback) {
         Bundle bundle = Arguments.toBundle(details);
         // If notification ID is not provided by the user, generate one at random
         if (bundle.getString("id") == null) {
             bundle.putString("id", String.valueOf(mRandomNumberGenerator.nextInt()));
         }
-        mRNPushNotificationHelper.sendNotificationScheduled(bundle);
+        mRNPushNotificationHelper.sendNotificationScheduled(bundle, callback);
     }
 
     @ReactMethod
@@ -207,7 +198,11 @@ public class RNPushNotification extends ReactContextBaseJavaModule implements Ac
      * @see <a href="https://facebook.github.io/react-native/docs/pushnotificationios.html">RN docs</a>
      */
     public void cancelAllLocalNotifications() {
-        mRNPushNotificationHelper.cancelAllScheduledNotifications();
+        mRNPushNotificationHelper.cancelAllScheduledNotifications(new Callback() {
+            @Override
+            public void invoke(Object... args) {
+            }
+        });
         mRNPushNotificationHelper.clearNotifications();
     }
 
@@ -215,8 +210,8 @@ public class RNPushNotification extends ReactContextBaseJavaModule implements Ac
     /**
      * Added by Viktor@Pilloxa 2019-04-03
      */
-    public void cancelAllScheduledNotifications() {
-        mRNPushNotificationHelper.cancelAllScheduledNotifications();
+    public void cancelAllScheduledNotifications(Callback callback) {
+        mRNPushNotificationHelper.cancelAllScheduledNotifications(callback);
     }
 
     @ReactMethod
@@ -238,8 +233,8 @@ public class RNPushNotification extends ReactContextBaseJavaModule implements Ac
      *
      * @see <a href="https://facebook.github.io/react-native/docs/pushnotificationios.html">RN docs</a>
      */
-    public void cancelLocalNotifications(ReadableMap userInfo) {
-        mRNPushNotificationHelper.cancelScheduledNotification(userInfo);
+    public void cancelLocalNotifications(ReadableMap userInfo, Callback callback) {
+        mRNPushNotificationHelper.cancelScheduledNotification(userInfo, callback);
     }
 
     @ReactMethod

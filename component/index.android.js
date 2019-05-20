@@ -33,9 +33,10 @@ NotificationsComponent.prototype.subscribeToTopic = function(topic: string) {
 };
 
 NotificationsComponent.prototype.cancelLocalNotifications = function(
-  details: Object
+  details: Object,
+  callback
 ) {
-  RNPushNotification.cancelLocalNotifications(details);
+  RNPushNotification.cancelLocalNotifications(details, callback);
 };
 
 NotificationsComponent.prototype.clearLocalNotification = function(
@@ -47,8 +48,10 @@ NotificationsComponent.prototype.clearLocalNotification = function(
 NotificationsComponent.prototype.cancelAllLocalNotifications = function() {
   RNPushNotification.cancelAllLocalNotifications();
 };
-NotificationsComponent.prototype.cancelAllScheduledNotifications = function() {
-  RNPushNotification.cancelAllScheduledNotifications();
+NotificationsComponent.prototype.cancelAllScheduledNotifications = function(
+  callback
+) {
+  RNPushNotification.cancelAllScheduledNotifications(callback);
 };
 NotificationsComponent.prototype.clearAllVisibleNotifications = function() {
   RNPushNotification.clearAllVisibleNotifications();
@@ -61,9 +64,10 @@ NotificationsComponent.prototype.presentLocalNotification = function(
 };
 
 NotificationsComponent.prototype.scheduleLocalNotification = function(
-  details: Object
+  details: Object,
+  callback
 ) {
-  RNPushNotification.scheduleLocalNotification(details);
+  RNPushNotification.scheduleLocalNotification(details, callback);
 };
 
 NotificationsComponent.prototype.setApplicationIconBadgeNumber = function(
